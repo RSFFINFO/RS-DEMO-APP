@@ -1,0 +1,6 @@
+{
+  "name": "WebToApp Studio",
+  "description": "An Android application designed to convert your favorite websites into fully functional, high-performance web-apps with custom names, packages, icons, and local persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
