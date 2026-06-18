@@ -119,3 +119,44 @@ dependencies {
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
 }
+
+abstract class CopyApkTask : DefaultTask() {
+    @get:Internal
+    abstract val rootDirProperty: org.gradle.api.provider.Property<File>
+
+    @get:Internal
+    abstract val buildDirProperty: org.gradle.api.provider.Property<File>
+
+    @TaskAction
+    fun copyApk() {
+        val rootDir = rootDirProperty.get()
+        val buildDir = buildDirProperty.get()
+        val apkSource = File(buildDir, "outputs/apk/debug/app-debug.apk")
+        val dest1 = File(rootDir, "APK_DOWNLOAD/app-debug.apk")
+        val dest2 = File(rootDir, ".build-outputs/app-debug.apk")
+        
+        if (apkSource.exists() && apkSource.length() > 0L) {
+            dest1.parentFile.mkdirs()
+            dest2.parentFile.mkdirs()
+            apkSource.copyTo(dest1, overwrite = true)
+            apkSource.copyTo(dest2, overwrite = true)
+            println("=== APK Copy Success ===")
+            println("Copied ${apkSource.length()} bytes to ${dest1.absolutePath}")
+            println("Copied ${apkSource.length()} bytes to ${dest2.absolutePath}")
+        } else {
+            println("=== APK Copy FAILED ===")
+            println("Source APK does not exist or is empty: ${apkSource.absolutePath}")
+        }
+    }
+}
+
+tasks.register<CopyApkTask>("copyDebugApkManual") {
+    rootDirProperty.set(project.rootDir)
+    buildDirProperty.set(layout.buildDirectory.asFile)
+}
+
+tasks.matching { it.name == "assembleDebug" }.configureEach {
+    finalizedBy("copyDebugApkManual")
+}
+
+
